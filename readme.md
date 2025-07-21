@@ -1,81 +1,102 @@
-# 🏠 Real Estate Price Predictor – Project Description
+# 🏠 Real Estate Price Predictor
 
 ## 📌 Overview
-The **Real Estate Price Predictor** is a machine learning application that uses **linear and polynomial regression** to predict house prices based on various features like square footage, number of bedrooms, age of the house, and location score. The project demonstrates key ML concepts such as **feature vectorization, scaling, cost optimization, learning rate tuning**, and **model training automation** using **GitHub Actions CI/CD pipelines**.
+A machine learning project to predict real estate prices using linear and polynomial regression. The project demonstrates core ML concepts, robust engineering practices, and DevOps automation with GitHub Actions.
 
 ---
 
 ## 🎯 Objectives
-- Implement a **linear regression model** from scratch using NumPy.
-- Apply **feature engineering**, **vectorization**, and **scaling** to prepare data.
-- Explore **polynomial regression** for better fit in non-linear cases.
-- Track training performance using a **cost function (MSE)**.
-- Tune the **learning rate** and visualize training convergence.
-- Create a reproducible workflow with **GitHub Actions** to automate training, testing, and model versioning.
+- Build and compare linear and polynomial regression models for price prediction.
+- Apply feature engineering, vectorization, and scaling.
+- Visualize training progress and model fit.
+- Automate training, testing, and model versioning with CI/CD.
 
 ---
 
 ## 📊 Dataset
-Use a synthetic or real-world dataset with the following columns:
-- `size_sqft` – size of the house in square feet
-- `num_bedrooms` – number of bedrooms
-- `age` – age of the property
-- `location_score` – encoded location quality (0–10)
-- `price` – target price in USD
-
-You can use:
-- A cleaned version of the [Boston Housing Dataset](https://www.kaggle.com/c/boston-housing)
-- Or generate synthetic data using NumPy and Pandas.
+Uses the [Boston Housing Dataset](https://www.kaggle.com/c/boston-housing) or synthetic data with features like:
+- `size_sqft`, `num_bedrooms`, `age`, `location_score`, and target `price`.
 
 ---
 
-## 📐 Core ML Concepts Implemented
+## 🧠 ML Concepts Implemented
 
-### 1. **Vectorization**
-- Use NumPy arrays instead of loops to compute predictions and gradients.
-- Demonstrate speedup from vectorized vs. loop-based implementations.
+### 1. Vectorization
+- Efficient NumPy-based computations for predictions and gradients.
 
-### 2. **Feature Scaling**
-- Implement **standardization (z-score normalization)**:
+### 2. Feature Scaling
+- Standardization (z-score normalization) for improved model convergence.
 
-### 3. **Cost Function**
-- Use **Mean Squared Error (MSE)**
+### 3. Cost Function
+- Mean Squared Error (MSE) for training and evaluation.
 
-### 4. **Gradient Descent**
-- Train the model using gradient descent.
-- Show effect of **learning rate** on convergence.
-- Plot the **cost vs. iterations** graph.
+### 4. Gradient Descent
+- Custom implementation with learning rate tuning and cost vs. iteration plots.
 
-### 5. **Polynomial Regression**
-- Extend features to quadratic terms: `x1^2`, `x1*x2`, `x2^2`, etc.
-- Compare linear vs. polynomial fit (using 2D/3D plots).
+### 5. Polynomial Regression
+- Feature expansion to quadratic terms for non-linear relationships.
+- Visual comparison of linear vs. polynomial fits.
 
-### 6. **Model Evaluation**
-- Evaluate using:
-  - Training/test split
-  - R² score
-  - Residual plots
+### 6. Model Evaluation
+- Train/test split, R² score, and residual plots for performance assessment.
 
 ---
 
 ## ⚙️ DevOps Integration
 
 ### GitHub Actions CI/CD
-Automate:
-- Code linting (e.g., with `flake8`)
-- Unit tests for:
-  - Cost function
-  - Gradient computation
-  - Prediction accuracy
-- Model training
-- Save trained model artifact 
+Automates:
+- Code linting (`flake8`)
+- Unit tests (core functions, model accuracy)
+- Coverage reporting
+- Model training and artifact saving
+
+Pre-commit hooks ensure code quality before every commit.
+
 ---
 
 ## 📚 Deliverables
-- ✅ Clean codebase with docstrings and comments
-- ✅ GitHub repo with commit history and GitHub Actions
-- ✅ Report or README with:
-  - Model explanation
-  - Graphs: cost curve, residuals, R² score
-  - Comparison of linear vs. polynomial regression
-- ✅ Working regression model with training script
+- ✅ Clean, well-documented codebase
+- ✅ Automated CI/CD pipeline
+- ✅ Unit tests with coverage
+- ✅ Model training scripts and Jupyter notebook
+- ✅ Results table and visualizations (cost curves, residuals, R² scores)
+- ✅ README/report with explanations and comparisons
+
+---
+
+## 🚀 Usage
+
+1. **Install dependencies**
+   ```sh
+   pip install -r requirements.txt
+   ```
+
+2. **Train models**
+   ```sh
+   python jobs.py
+   ```
+
+3. **Run tests**
+   ```sh
+   coverage run --source=src -m unittest tests.py
+   coverage report
+   ```
+
+4. **View results**
+   - See Jupyter notebook for plots and results table.
+   - Trained models and parameters are saved in the `data/` directory.
+
+---
+
+## 🏆 Results
+
+- Linear and polynomial regression compared on real/synthetic data.
+- Automated workflow ensures reproducibility and code quality.
+- Ready for deployment or further extension.
+
+---
+
+## 📬 Contact
+
+For questions or collaboration, open an issue or pull request on GitHub.
