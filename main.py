@@ -1,5 +1,5 @@
-from data.read import read_csv
-from data.train import preprocess_normalize_data, train_evaluate_linear_regression, train_evaluate_polynomial_regression
+from src.read import read_csv
+from src.models import preprocess_normalize_data, train_evaluate_linear_regression, train_evaluate_polynomial_regression
 
 def main():
     '''
