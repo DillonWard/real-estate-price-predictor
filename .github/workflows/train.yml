@@ -40,7 +40,7 @@ jobs:
 
       - name: Run unit tests with coverage
         run: |
-          coverage run --source=src -m unittest tests.py
+          coverage run --source=src --omit="src/vars.py" -m unittest tests.py
           coverage report
           coverage xml
       - name: Upload coverage report

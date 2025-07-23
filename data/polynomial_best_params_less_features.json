@@ -1,0 +1,1 @@
+{"poly__degree": 3, "alpha": 0.1, "eta0": 0.01, "learning_rate": "invscaling", "max_iter": 50000, "penalty": "l1"}

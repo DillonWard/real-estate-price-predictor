@@ -7,8 +7,18 @@ from src.models import (
     train_evaluate_polynomial_regression,
     train_evaluate_zscore_normalization,
     train_evaluate_random_forest,
+    tune_linear_hyperparameters,
+    tune_rf_hyperparameters,
+    tune_polynomial_hyperparameters,
+    tune_zscore_hyperparameters,
+    make_predictions_and_evaluate
+)
+from src.utils import (
+    draw_scatter_plot,
+    populate_overall_results
 )
 from src.read import read_csv, load_model, load_params
+from unittest.mock import patch
 
 
 class TestPreprocessing(unittest.TestCase):
@@ -50,6 +60,32 @@ class TestUtils(unittest.TestCase):
         except Exception:
             pass
 
+    def test_draw_scatter_plot_runs(self):
+        x = np.arange(10)
+        y = np.random.rand(10)
+        predictions = np.random.rand(10)
+        try:
+            draw_scatter_plot(x, y, predictions, "x", "y", "title")
+        except Exception as e:
+            self.fail(f"draw_scatter_plot raised {e}")
+
+    def test_populate_overall_results(self):
+        results = {
+            "train_mse": 1,
+            "train_rmse": 2,
+            "train_mae": 3,
+            "test_mse": 4,
+            "test_rmse": 5,
+            "test_mae": 6,
+        }
+        overall = [
+            {"MSE Before": 0, "RMSE Before": 0, "MAE Before": 0,
+             "MSE After": 0, "RMSE After": 0, "MAE After": 0}
+        ]
+        updated = populate_overall_results(0, results, overall)
+        self.assertEqual(updated[0]["MSE Before"], 1)
+        self.assertEqual(updated[0]["RMSE After"], 5)
+
     def test_load_model_and_params_types(self):
         self.assertIsNone(load_model("data/nonexistent_model.joblib"))
         self.assertIsNone(load_params("data/nonexistent_params.json"))
@@ -67,7 +103,8 @@ class TestUtils(unittest.TestCase):
 
 
 class TestModelTraining(unittest.TestCase):
-    def test_train_evaluate_linear_regression_metrics(self):
+    @patch("src.models.load_model", return_value=None)
+    def test_train_evaluate_linear_regression_metrics(self, _):
         x = np.random.rand(30, 13)
         y = np.random.rand(30, 1)
         model, X_test, y_test, y_test_pred, results = (
@@ -76,7 +113,8 @@ class TestModelTraining(unittest.TestCase):
         self.assertEqual(y_test_pred.shape, y_test.ravel().shape)
         self.assertTrue("test_mse" in results and "train_mse" in results)
 
-    def test_train_evaluate_polynomial_regression_metrics(self):
+    @patch("src.models.load_model", return_value=None)
+    def test_train_evaluate_polynomial_regression_metrics(self, _):
         x = np.random.rand(30, 13)
         y = np.random.rand(30, 1)
         model, X_test, y_test, y_test_pred, results = (
@@ -85,7 +123,8 @@ class TestModelTraining(unittest.TestCase):
         self.assertEqual(y_test_pred.shape, y_test.ravel().shape)
         self.assertTrue("test_mse" in results and "train_mse" in results)
 
-    def test_train_evaluate_zscore_normalization_metrics(self):
+    @patch("src.models.load_model", return_value=None)
+    def test_train_evaluate_zscore_normalization_metrics(self, _):
         x = np.random.rand(30, 13)
         y = np.random.rand(30, 1)
         x_norm, _, _ = zscore_normalize(x)
@@ -109,9 +148,7 @@ class TestModelTraining(unittest.TestCase):
     def test_perform_hyperparameter_tuning_linear(self):
         x = np.random.rand(30, 13)
         y = np.random.rand(30, 1)
-        from src.models import perform_hyperparameter_tuning
-
-        params = perform_hyperparameter_tuning(x, y, pipeline_type="linear")
+        params = tune_linear_hyperparameters(x, y)
         self.assertIsInstance(params, dict)
         self.assertTrue("max_iter" in params)
 
@@ -165,13 +202,109 @@ class TestModelTraining(unittest.TestCase):
         self.assertTrue("test_mse" in results and "train_mse" in results)
 
     def test_perform_rf_hyperparameter_tuning(self):
-        from src.models import perform_rf_hyperparameter_tuning
-
         x = np.random.rand(30, 13)
         y = np.random.rand(30, 1)
-        params = perform_rf_hyperparameter_tuning(x, y)
+        params = tune_rf_hyperparameters(x, y)
         self.assertIsInstance(params, dict)
         self.assertTrue("n_estimators" in params)
+
+    @patch("src.models.load_model", return_value=None)
+    def test_train_evaluate_linear_regression_with_params(self, _):
+        x = np.random.rand(30, 5)
+        y = np.random.rand(30, 1)
+        params = {"max_iter": 500, "alpha": 0.01, "penalty": "l2"}
+        model, X_test, y_test, y_test_pred, results = (
+            train_evaluate_linear_regression(x, y, params=params)
+        )
+        self.assertEqual(X_test.shape[1], x.shape[1])
+        self.assertEqual(y_test_pred.shape, y_test.ravel().shape)
+        self.assertTrue("test_mse" in results)
+
+    @patch("src.models.load_model", return_value=None)
+    def test_train_evaluate_polynomial_regression_with_params(self, _):
+        x = np.random.rand(30, 5)
+        y = np.random.rand(30, 1)
+        params = {
+            "max_iter": 500,
+            "alpha": 0.01,
+            "penalty": "l2",
+            "poly__degree": 2
+        }
+        model, X_test, y_test, y_test_pred, results = (
+            train_evaluate_polynomial_regression(x, y, params=params)
+        )
+        self.assertEqual(X_test.shape[1], x.shape[1])
+        self.assertEqual(y_test_pred.shape, y_test.ravel().shape)
+        self.assertTrue("test_mse" in results)
+
+    @patch("src.models.load_model", return_value=None)
+    def test_train_evaluate_zscore_normalization_with_params(self, _):
+        x = np.random.rand(30, 5)
+        y = np.random.rand(30, 1)
+        x_norm, _, _ = zscore_normalize(x)
+        params = {"max_iter": 500, "alpha": 0.01, "penalty": "l2"}
+        model, X_test, y_test, y_test_pred, results = (
+            train_evaluate_zscore_normalization(x_norm, y, params=params)
+        )
+        self.assertEqual(X_test.shape[1], x_norm.shape[1])
+        self.assertEqual(y_test_pred.shape, y_test.ravel().shape)
+        self.assertTrue("test_mse" in results)
+
+    def test_train_evaluate_random_forest_with_custom_params(self):
+        x = np.random.rand(30, 5)
+        y = np.random.rand(30, 1)
+        params = {"n_estimators": 5, "max_depth": 2}
+        model, X_test, y_test, y_test_pred, results = (
+            train_evaluate_random_forest(
+                x, y, params=params
+            )
+        )
+        self.assertEqual(y_test_pred.shape, y_test.ravel().shape)
+        self.assertTrue("test_mse" in results)
+
+    def test_tune_linear_hyperparameters_returns_dict(self):
+        x = np.random.rand(20, 5)
+        y = np.random.rand(20, 1)
+        params = tune_linear_hyperparameters(x, y)
+        self.assertIsInstance(params, dict)
+        self.assertIn("max_iter", params)
+
+    def test_tune_polynomial_hyperparameters_returns_dict(self):
+        x = np.random.rand(20, 5)
+        y = np.random.rand(20, 1)
+        params = tune_polynomial_hyperparameters(x, y)
+        self.assertIsInstance(params, dict)
+        self.assertIn("max_iter", params)
+        self.assertIn("poly__degree", params)
+
+    def test_tune_zscore_hyperparameters_returns_dict(self):
+        x = np.random.rand(20, 5)
+        y = np.random.rand(20, 1)
+        params = tune_zscore_hyperparameters(x, y)
+        self.assertIsInstance(params, dict)
+        self.assertIn("max_iter", params)
+
+    def test_tune_rf_hyperparameters_returns_dict(self):
+        x = np.random.rand(20, 5)
+        y = np.random.rand(20, 1)
+        params = tune_rf_hyperparameters(x, y)
+        self.assertIsInstance(params, dict)
+        self.assertIn("n_estimators", params)
+
+    def test_make_predictions_and_evaluate_with_bad_model(self):
+        class DummyModel:
+            def predict(self, X):
+                return np.zeros(X.shape[0])
+        x_train = np.random.rand(10, 3)
+        y_train = np.random.rand(10, 1)
+        x_test = np.random.rand(5, 3)
+        y_test = np.random.rand(5, 1)
+        y_test_pred, results = make_predictions_and_evaluate(
+            DummyModel(), x_train, y_train, x_test, y_test
+        )
+        self.assertEqual(y_test_pred.shape[0], y_test.shape[0])
+        self.assertIn("train_mse", results)
+        self.assertIn("test_mse", results)
 
 
 if __name__ == "__main__":
